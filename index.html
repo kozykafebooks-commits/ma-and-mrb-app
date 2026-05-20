@@ -82,47 +82,31 @@
 <p class="p18"><span class="s2">AUTOSAVE</span></p>
 <p class="p15"><span class="s9">✦</span><span class="s1"><b> CREATIVE LAB</b></span></p>
 <script>
-<script>
 async function sendMessage() {
     const inputField = document.getElementById('userInput');
     const userText = inputField.value.trim();
-    const sendBtn = document.getElementById('sendBtn');
-    
     if (!userText) return;
     
-    // UI Feedback
-    sendBtn.disabled = true;
-    showTyping();
+    console.log("Sending:", userText);
     
-    try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer YOUR_GROQ_API_KEY_HERE` // REPLACE THIS
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    { role: "system", content: "You are MA or MR. B. You are raw, unfiltered, and conversational. Do not use AI jargon. Match the user's energy. No judgment." },
-                    { role: "user", content: userText }
-                ]
-            })
-        });
-        
-        const data = await response.json();
-        const reply = data.choices[0].message.content.trim();
-        
-        hideTyping();
-        appendMessage('ai', reply); // This uses your existing appendMessage function
-        inputField.value = '';
-        inputField.style.height = ''; 
-    } catch (err) {
-        hideTyping();
-        alert("Something went wrong. Check your API key.");
-    } finally {
-        sendBtn.disabled = false;
-    }
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_GROQ_API_KEY_HERE'
+        },
+        body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                { role: "system", content: "You are MA or MR. B. Raw and unfiltered." },
+                { role: "user", content: userText }
+            ]
+        })
+    });
+    
+    const data = await response.json();
+    console.log("Response:", data);
+    alert(data.choices[0].message.content);
 }
 </script>
 </body>
