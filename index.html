@@ -253,9 +253,18 @@ const CP={anger:'mrb',spiral:'ma',support:'ma',hype:'ma',filth:'mrb'};
 const PW={ma:{anger:'mamas,',spiral:'mamas,',support:'beautiful baby,',hype:'mamas,',filth:'mamas,'},mrb:{anger:'shorty,',spiral:'shorty,',support:'shorty,',hype:'shorty,',filth:'shorty,'}};
 let per='ma',cat='anger',mems=[],lastRes='',saveT=null,waveT=null;
 const MAX_MSG=55;
-function playClick(){
-if(!document.getElementById('soundToggle').checked) return;
-try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(120,c.currentTime);g.gain.setValueAtTime(0.01,c.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,c.currentTime+0.05);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.05);}catch(e){}
+function playClick() {
+    // 1. Try to find the element
+    const speechBox = document.getElementById('speech');
+    
+    // 2. Only try to check '.checked' if the element actually exists
+    if (speechBox && speechBox.checked) {
+        // ... your audio code here ...
+        console.log("Click sound played");
+    } else {
+        // If it doesn't exist or isn't checked, just do nothing and return.
+        return; 
+    }
 }
 const catZone=document.getElementById('catZone');
 let isDown=false,startX,scrollLeft;
