@@ -396,28 +396,6 @@ async function send() {
         console.error(err);
     }
 }
-const trigger=detectTrigger(inp);
-if(trigger&&TR[trigger]){
-const pool=TR[trigger];response=pool[Math.floor(Math.random()*pool.length)];
-} else if(cat==='filth'){
-const pool=getFilthPool(inp);response=pool[Math.floor(Math.random()*pool.length)];
-} else {
-const pool=RE[cat];response=pool[Math.floor(Math.random()*pool.length)];
-}
-if(memMatch&&Math.random()>0.5){
-const connects=["That's real — and you already know this connects to what you told me. Keep that in mind.",` And you told me: "${memMatch.toLowerCase()}" — that still stands.`];
-response+=connects[Math.floor(Math.random()*connects.length)];
-}
-lastRes=response;
-addMsg('companion',response,null);
-const thread=document.getElementById('thread');
-const msgs=thread.getElementsByClassName('msg');
-const last=msgs[msgs.length-1];
-const bubble=last?last.querySelector('.msg-bubble'):null;
-if(bubble) speakText(response,bubble.id);
-autoSave();
-},delay);
-}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 const EM=['🦋','💗','🩷','💜','🖤','✨','💫','🌟','💖','🫶','🫧','🌹','🔥','💋','🤍'];
 function hug(){
