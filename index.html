@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head>c
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Ma & Mr. B</title>
@@ -343,26 +343,58 @@ const stopW=()=>{pulseWave(per,false);if(iw){iw.classList.remove('show');iw.quer
 u.onstart=startW;u.onend=u.onerror=stopW;
 window.speechSynthesis.speak(u);
 }
-function send(){
-const inp=document.getElementById('chin').value.trim();
-if(!inp) return;
-playClick();
-const mirror=buildMirror(inp);
-addMsg('user',inp,mirror);
-const chinTA=document.getElementById('chin');
-chinTA.value='';chinTA.style.height='auto';
-const tw=document.getElementById('typingWrap');
-document.getElementById('typingWho').textContent=per==='ma'?'Ma is locking in...':'Mr. B is tracking...';
-tw.classList.add('show');
-const delay=600+Math.random()*600;
-setTimeout(()=>{
-tw.classList.remove('show');
-let response='';
-let memMatch=null;
-const lowInp=inp.toLowerCase();
-for(const m of mems){
-const kw=m.text.toLowerCase().split(' ').filter(w=>w.length>3);
-if(kw.some(k=>lowInp.includes(k))){memMatch=m.text;break;}
+async function send() {
+    // 1. Get the key from the box you added
+    const apiKey = localStorage.getItem('mab_groq_key');
+    if (!apiKey) { alert("Please enter your Groq API Key in the box above first!"); return; }
+
+    const inp = document.getElementById('chin').value.trim();
+    if (!inp) return;
+
+    // 2. UI Feedback (Your original mirroring logic)
+    playClick();
+    const mirror = buildMirror(inp);
+    addMsg('user', inp, mirror);
+    
+    document.getElementById('chin').value = '';
+    const tw = document.getElementById('typingWrap');
+    tw.classList.add('show'); 
+
+    // 3. Fetch from Groq
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: inp }]
+            })
+        });
+
+        const data = await response.json();
+        let responseText = data.choices[0].message.content;
+
+        // 4. Incorporate your memory logic (if you want to keep it)
+        // This checks if there's a memory match and appends it to the AI text
+        if(typeof memMatch !== 'undefined' && memMatch && Math.random() > 0.5){
+            const connects = [" That's real — and you already know this connects to what you told me.", ` And you told me: "${memMatch.toLowerCase()}" — that still stands.`];
+            responseText += connects[Math.floor(Math.random() * connects.length)];
+        }
+
+        // 5. Final UI Update
+        tw.classList.remove('show');
+        addMsg('companion', responseText, null);
+        speakText(responseText, null); 
+        autoSave();
+
+    } catch (err) {
+        tw.classList.remove('show');
+        alert("Groq connection failed. Check your key and connection.");
+        console.error(err);
+    }
 }
 const trigger=detectTrigger(inp);
 if(trigger&&TR[trigger]){
