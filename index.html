@@ -355,10 +355,13 @@ u.onstart=startW;u.onend=u.onerror=stopW;
 window.speechSynthesis.speak(u);
 }
 async function send() {
-    // 1. Get the key from the box you added
     const apiKey = localStorage.getItem('mab_groq_key');
-    if (!apiKey) { alert("Please enter your Groq API Key in the box above first!"); return; }
-
+    // Only alert if we really have no key at all
+    if (!apiKey) { 
+        alert("Enter your Groq API Key in the box above first!"); 
+        return; 
+    }
+    // ... rest of code
     const inp = document.getElementById('chin').value.trim();
     if (!inp) return;
 
