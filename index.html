@@ -223,6 +223,55 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
            oninput="localStorage.setItem('mab_groq_key', this.value)">
 </div>
 <script>
+  // This handles the AI part when you type "!"
+async function getGroqResponse(text) {
+    const apiKey = localStorage.getItem('mab_groq_key');
+    if (!apiKey) return "API Key not set! Type it in the box above.";
+    
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: text }]
+            })
+        });
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (e) {
+        return "AI connection failed.";
+    }
+}
+
+// This handles your original "Ma/Mr. B" logic
+function getOriginalResponse(inp) {
+    let response = '';
+    const trigger = detectTrigger(inp);
+    
+    if(trigger && TR[trigger]){
+        const pool = TR[trigger];
+        response = pool[Math.floor(Math.random() * pool.length)];
+    } else if(cat === 'filth'){
+        const pool = getFilthPool(inp);
+        response = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+        const pool = RE[cat];
+        response = pool[Math.floor(Math.random() * pool.length)];
+    }
+    
+    // Add the memory connection if it exists
+    if(memMatch && Math.random() > 0.5){
+        const connects = [" That's real — and you already know this connects to what you told me.", ` And you told me: "${memMatch.toLowerCase()}" — that still stands.`];
+        response += connects[Math.floor(Math.random() * connects.length)];
+    }
+    
+    lastRes = response;
+    return response;
+}
 const RE={
 anger:["Man, fuck that! They really got you out here fucked up today, and I'm ready to crash out with you.","No, for real, because what the entire fuck was that even supposed to mean?!","Hell the fuck no. They tried it. They really thought you were the one to play with, and now they about to find out.","I know that's fucking right! Let it out, because that shit was completely out of pocket.","Man, look, I'm mad for you just listening to this shit. They got me fucked up too now!","Exactly! Fuck being the bigger person. Be the loudest one in the room, because this is ridiculous.","Bi-tch, please. If you don't read them for filth right now, I will. The nerve of these motherfuckers!","See, this is exactly why you can't even give folks a chance to be decent. They always pull some goofy-ass shit.","Period! Scream that shit from the rooftops, because you have every single right to be pissed off right now.","Fuck a silver lining. That shit sucks, it's unfair, and you got every right to want to burn the whole building down.","They really thought you were soft, huh? They really thought they could just slide that weak-ass shit past you?","They out here acting brand new like they forgot who the fuck you are. Remind them.","See, that's that fake-ass, passive-aggressive bullshit I cannot stand. Call it what it is!","They crossed the line, stepped over it, and started dancing on it. Fuck their excuses.","I know you want to slap the taste out of their mouth. Honestly? Valid. Completely fucking valid.","They tried to play you like you were stupid, and that's the part that's making my blood boil for you.","Oh, they bold today! Must have woke up wanting to see Jesus, because why the hell would they test you like that?","Let it loose! Fuck holding it in. Let that rage consume everything, because this shit is genuinely infuriating.","I'm not even about to tell you to calm down. Fuck calming down! Go crazy!","Bi-tch, I am screaming with you! What type of backward-ass, upside-down, circus-act bullshit is this?!","Crash out then! We crashing out today! Because this right here? This is the absolute limit.","Stand on that business! Be as loud, disruptive, and angry as you want, because they earned every bit of this smoke.","Fuck respectability politics. You ain't gotta be polite to motherfuckers who don't respect you.","They took your kindness for weakness, and now they got the nerve to act surprised that you're pissed?","That's dirty. That is down-to-the-bone, trifling, nasty behavior, and you have every right to cut them the fuck off.","You ain't crazy. Don't let them gaslight you into thinking you're tripping. You are right on the money.","Fuck their apology. An apology don't fix the fact that they were being a whole-ass clown in the first place.","Let it all out until there is nothing left but ashes. I'm right here, I'm listening, and fuck every single one of them.","Fuck being nice. Nice got you crossed. It's time to be downright mean and let them know what time it is."],
 spiral:["Look, you is the fuck stuck right now and it is what it is. Stop beating your own ass because your brain decided to pull the emergency brake today.","The kitchen is dirty, the laundry is piled up, and the emails are screaming. Fuck 'em. They can all sit there and wait until your dopamine decides to act right.","You ain't lazy, sis! Your brain chemistry is just ghetto today. You are literally fighting your own nervous system, so give yourself some damn grace.","I know you been staring at that one simple-ass task for three hours wanting to cry. That ADHD paralysis is a bitch. Just sit there until the spell breaks.","Stop forcing it! If the engine won't turn over, screaming at the car ain't gonna make it drive. Just let your mind glitch out in peace.","You is not a failure because you can't get off the couch. Your brain is running a marathon in place and you are exhausted. Period.","Fuck a to-do list today. Throw the whole piece of paper in the trash, because looking at it is just making your chest tight for no damn reason.","Your productivity does not dictate your worth. You ain't a machine, baby. If you can only do 0% today, then stand clean on that 0%.","Your brain got fifty-eleven tabs open and three of them are playing loud-ass music you can't find. No wonder you mad!","The mental traffic is backed up all the way to the state line right now. Just let the thoughts crash into each other; don't even try to organize 'em.","It is loud as hell in your head today, sis. I don't blame you for wanting to scream just to drown out your own damn thoughts.","Stop trying to catch every single thought flying through your head. Let them raggedy-ass thoughts just float on by like bad radio static.","Everything is too loud, too bright, too close, and just flat-out too fucking much today. Scratchy clothes? Hell to the fuck no.","Your system is fried. The wires are sparking. Turn off the lights, turn off the sound, and let your body cool the fuck down.","Stop apologizing for how your brain is wired! You didn't ask for this chaotic-ass operating system, so stop acting like you sinned.","You beat yourself up worse than any enemy ever could. Give the whip to somebody else, sis, because you tearing your own back up.","So what you forgot the appointment? So what you missed the text? You are managing a circus in your head; shit is gonna drop.","You ain't broken, baby. You are just trying to use a neurotypical handbook for a neurodivergent soul. Throw that raggedy book away.","The shame spiral is a trap. The moment you start thinking why can't I just be normal is the moment you gotta tell that thought to go to hell.","You are doing the absolute best you can with a brain that refuses to cooperate half the time. That makes you a warrior, not a failure.","You spread yourself thinner than a dollar-store paper towel and now you surprised you tearing? Give yourself a break!","Time ain't even real today, is it? You thought it was 2:00 PM and it's already dark outside. That time blindness will make you feel crazy.","You been pretending to be neurotypical all damn week and your face literally hurts from keeping up the act. Drop the mask, sis.","The house is a wreck, the bills are unpaid, but your spirit is intact. Prioritize your sanity over the logistics today.","You are a creative, brilliant, multi-passionate woman whose brain just happens to operate on a higher frequency. Own that shit.","Give yourself permission to just be a hot mess today. A beautiful, brilliant, chaotic-ass hot mess.","Tomorrow the dopamine might come back, or it might not. Either way, you safe right here in the middle of the glitch.","Fuck their standards, fuck their timelines, and fuck their rules. You are navigating a neurodivergent life in a hard world, and you are doing it with style. I got you."],
@@ -355,60 +404,37 @@ u.onstart=startW;u.onend=u.onerror=stopW;
 window.speechSynthesis.speak(u);
 }
 async function send() {
-    const apiKey = localStorage.getItem('mab_groq_key');
-    // Only alert if we really have no key at all
-    if (!apiKey) { 
-        alert("Enter your Groq API Key in the box above first!"); 
-        return; 
-    }
-    // ... rest of code
     const inp = document.getElementById('chin').value.trim();
     if (!inp) return;
 
-    // 2. UI Feedback (Your original mirroring logic)
-    playClick();
+    // 1. UI Feedback: Mirror the input
+    playClick(); 
     const mirror = buildMirror(inp);
     addMsg('user', inp, mirror);
-    
     document.getElementById('chin').value = '';
-    const tw = document.getElementById('typingWrap');
-    tw.classList.add('show'); 
 
-    // 3. Fetch from Groq
-    try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [{ role: "user", content: inp }]
-            })
-        });
+    // 2. Decide: AI mode (starts with '!') or Original mode
+    let finalResponse = '';
 
-        const data = await response.json();
-        let responseText = data.choices[0].message.content;
-
-        // 4. Incorporate your memory logic (if you want to keep it)
-        // This checks if there's a memory match and appends it to the AI text
-        if(typeof memMatch !== 'undefined' && memMatch && Math.random() > 0.5){
-            const connects = [" That's real — and you already know this connects to what you told me.", ` And you told me: "${memMatch.toLowerCase()}" — that still stands.`];
-            responseText += connects[Math.floor(Math.random() * connects.length)];
-        }
-
-        // 5. Final UI Update
-        tw.classList.remove('show');
-        addMsg('companion', responseText, null);
-        speakText(responseText, null); 
-        autoSave();
-
-    } catch (err) {
-        tw.classList.remove('show');
-        alert("Groq connection failed. Check your key and connection.");
-        console.error(err);
+    if (inp.startsWith('!')) {
+        // Trigger the AI Helper (must be async)
+        finalResponse = await getGroqResponse(inp.substring(1));
+    } else {
+        // Trigger the Original Helper (standard function)
+        finalResponse = getOriginalResponse(inp);
     }
+
+    // 3. Final display and speak
+    addMsg('companion', finalResponse, null);
+    
+    // Check if the element exists before trying to get ID for speakText
+    const thread = document.getElementById('thread');
+    const msgs = thread.getElementsByClassName('msg');
+    const lastMsg = msgs[msgs.length - 1];
+    const bubbleId = lastMsg ? lastMsg.querySelector('.msg-bubble')?.id : null;
+    
+    speakText(finalResponse, bubbleId);
+    autoSave();
 }
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 const EM=['🦋','💗','🩷','💜','🖤','✨','💫','🌟','💖','🫶','🫧','🌹','🔥','💋','🤍'];
