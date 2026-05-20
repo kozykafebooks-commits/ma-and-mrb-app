@@ -1,77 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>MA & MR. B</title>
-    <style>
-        body { background-color: #070707; color: white; font-family: Helvetica, sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1 { color: white; }
-        #userInput { 
-            width: 80%; 
-            height: 100px; 
-            background: #1a1a1a; 
-            color: white; 
-            border: 1px solid #48423f; 
-            padding: 10px; 
-            margin-bottom: 10px; 
-        }
-        button { 
-            background: #ca112c; 
-            color: white; 
-            border: none; 
-            padding: 15px 30px; 
-            cursor: pointer; 
-            font-weight: bold; 
-        }
-        #responseArea { margin-top: 20px; color: #f1eee7; white-space: pre-wrap; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Ma & Mr. B</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+--bg:#060606;--surface:#111111;--surface2:#181818;--border:#222222;--border-focus:#3a3a3a;
+--text:#F4F1EC;--text2:#9A958F;--text3:#5A5450;
+--red:#D62839;--red-glow:rgba(214,40,57,0.15);--red2:#FF4D5E;--white:#FFFFFF;
+--fs:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'Space Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;background:var(--bg);}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes waveBar{0%{height:3px;}100%{height:22px;}}
+@keyframes burst{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1;}100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot)) scale(0.1);opacity:0;}}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes sealOut{0%{opacity:1;transform:scale(1) rotate(0deg);}100%{opacity:0;transform:scale(0) rotate(180deg);}}
+@keyframes receiptIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes typingPulse{0%,100%{opacity:0.2;}50%{opacity:1;}}
+.view{display:none;flex-direction:column;}
+.view.on{display:flex;animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;}
+.app-header{padding:24px 24px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.02);}
+.app-logo{font-family:var(--fs);font-size:1.4rem;font-weight:900;letter-spacing:-0.03em;color:var(--white);}
+.app-logo span{color:var(--red);}
+.hdr-actions{display:flex;align-items:center;gap:10px;}
+.hdr-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--fm);font-size:0.6rem;letter-spacing:0.12em;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all 0.25s;}
+.hdr-btn:hover{border-color:var(--red);color:var(--white);box-shadow:0 0 12px var(--red-glow);}
+.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 24px 0;}
+.ptab{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);}
+.ptab.on{border-color:var(--red);background:rgba(214,40,57,0.04);box-shadow:inset 0 0 20px rgba(214,40,57,0.05),0 4px 24px rgba(0,0,0,0.4);}
+.ptab.on::after{content:'';position:absolute;bottom:-2px;width:40px;height:2px;background:var(--red);border-radius:2px;}
+.ptab-name{font-family:var(--fs);font-size:1.25rem;font-weight:900;color:var(--text3);letter-spacing:0.02em;transition:color 0.3s;}
+.ptab.on .ptab-name{color:var(--white);text-shadow:0 0 10px var(--red-glow);}
+.ptab-role{font-family:var(--fm);font-size:0.5rem;letter-spacing:0.08em;color:var(--text3);text-align:center;line-height:1.5;}
+.ptab.on .ptab-role{color:var(--text2);}
+.wave{display:flex;align-items:center;gap:4px;height:24px;}
+.wb{width:3px;height:4px;border-radius:2px;background:var(--border);transition:background 0.3s;}
+.ptab.on .wb{background:rgba(214,40,57,0.3);}
+.wb.go{animation:waveBar 0.35s ease-in-out infinite alternate;background:var(--red)!important;}
+.cats{display:flex;overflow-x:auto;gap:8px;margin:16px 24px 0;scrollbar-width:none;padding-bottom:4px;scroll-behavior:smooth;}
+.cats::-webkit-scrollbar{display:none;}
+.cat{flex-shrink:0;padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:100px;cursor:pointer;transition:all 0.2s;}
+.cat:hover{border-color:var(--border-focus);}
+.cat.on{background:var(--red);border-color:var(--red);box-shadow:0 4px 12px var(--red-glow);}
+.cat-name{font-family:var(--fs);font-size:0.65rem;font-weight:800;letter-spacing:0.06em;color:var(--text2);transition:color 0.2s;white-space:nowrap;}
+.cat.on .cat-name{color:var(--white);}
+.thread{margin:16px 24px 0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:42vh;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.thread::-webkit-scrollbar{width:3px;}
+.thread::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.msg{display:flex;flex-direction:column;gap:6px;animation:slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;}
+.msg-tag{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.18em;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.tag-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;box-shadow:0 0 6px var(--red);}
+.msg-mirror{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.06em;color:var(--red2);margin-bottom:2px;font-style:italic;opacity:0.9;}
+.msg-bubble{font-family:var(--fb);font-size:1.05rem;font-weight:400;line-height:1.75;color:var(--text);padding:16px 20px;border-radius:14px;background:var(--surface);border:1px solid var(--border);word-break:break-word;}
+.msg-bubble.user{background:transparent;border:none;color:var(--text2);font-size:1rem;padding:4px 0;font-style:italic;}
+.msg-actions{display:flex;align-items:center;gap:12px;padding:4px 6px;}
+.audio-btn{background:none;border:none;cursor:pointer;font-size:0.9rem;opacity:0.25;transition:opacity 0.2s,transform 0.1s;}
+.audio-btn:hover{opacity:0.8;transform:scale(1.05);}
+.iwrap{display:none;align-items:center;gap:3px;height:14px;}
+.iwrap.show{display:flex;}
+.iwb{width:2px;height:4px;border-radius:1px;background:var(--red);}
+.iwb.go{animation:waveBar 0.3s ease-in-out infinite alternate;}
+.typing-wrap{display:none;align-items:center;gap:12px;padding:12px 24px;min-height:40px;}
+.typing-wrap.show{display:flex;}
+.typing-dots{display:flex;gap:5px;align-items:center;}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--red);opacity:0.3;animation:typingPulse 1s ease-in-out infinite;}
+.typing-dot:nth-child(2){animation-delay:0.15s;}
+.typing-dot:nth-child(3){animation-delay:0.3s;}
+.typing-who{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.12em;color:var(--text3);}
+.empty-state{font-family:var(--fb);font-size:1.05rem;color:var(--text3);text-align:center;padding:48px 24px;line-height:1.8;}
+.inpwrap{margin:8px 24px 0;}
+.inprow{display:flex;gap:10px;align-items:flex-end;background:var(--surface);border:1px solid var(--border);padding:8px 8px 8px 16px;border-radius:14px;transition:border-color 0.25s,box-shadow 0.25s;}
+.inprow:focus-within{border-color:var(--border-focus);box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+.chin{flex:1;padding:10px 0;font-family:var(--fb);font-size:1.05rem;border:none;outline:none;background:transparent;color:var(--text);resize:none;max-height:160px;min-height:28px;line-height:1.5;}
+.chin::placeholder{color:var(--text3);}
+.sndbtn{padding:12px 22px;background:var(--red);color:var(--white);border:none;font-family:var(--fs);font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.2s cubic-bezier(0.16,1,0.3,1);border-radius:10px;letter-spacing:0.05em;}
+.sndbtn:hover{background:var(--red2);transform:translateY(-1px);}
+.sys-controls{display:flex;gap:14px;margin:8px 24px 0;padding-top:4px;}
+.tgl-lbl{font-family:var(--fm);font-size:0.52rem;color:var(--text3);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.tgl-lbl input{accent-color:var(--red);}
+.teachbar{margin:10px 24px 0;padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:border-color 0.2s;}
+.teachbar:hover{border-color:var(--border-focus);}
+.teachlbl{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.15em;color:var(--text2);}
+.teachpnl{margin:0 24px;display:none;padding:16px;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;animation:slideIn 0.2s ease;}
+.teachpnl.on{display:block;}
+.teachin{width:100%;padding:12px 16px;font-family:var(--fb);font-size:0.95rem;border:1px solid var(--border);outline:none;background:var(--bg);color:var(--text);margin-bottom:10px;border-radius:8px;transition:border-color 0.2s;}
+.teachin:focus{border-color:var(--red);}
+.teachin::placeholder{color:var(--text3);}
+.teachsave{padding:10px 24px;background:var(--red);color:var(--white);border:none;font-family:var(--fs);font-size:0.7rem;font-weight:800;cursor:pointer;border-radius:8px;}
+.memlist{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:140px;overflow-y:auto;}
+.memitem{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-family:var(--fb);font-size:0.9rem;color:var(--text2);}
+.memdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.85rem;padding:2px 6px;}
+.memdel:hover{color:var(--red);}
+.btm{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 36px;gap:12px;}
+.hugbtn{padding:12px 20px;background:var(--surface);border:1px solid var(--border);font-family:var(--fs);font-size:0.75rem;font-weight:800;cursor:pointer;color:var(--text);transition:all 0.25s;border-radius:10px;}
+.hugbtn:hover{border-color:var(--red);color:var(--white);}
+.saverow{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.12em;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--border);transition:background 0.3s;}
+.sdot.ok{background:#4CAF50;box-shadow:0 0 8px #4CAF50;}
+.labbtn{padding:12px 20px;background:var(--red);border:none;color:var(--white);font-family:var(--fs);font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.25s;border-radius:10px;box-shadow:0 4px 14px var(--red-glow);}
+.labbtn:hover{background:var(--red2);}
+#burst{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+.bp{position:absolute;top:50%;left:50%;animation:burst var(--dur) cubic-bezier(0.1,0.8,0.3,1) forwards;pointer-events:none;margin-left:-12px;margin-top:-12px;}
+.lbck{background:none;border:none;font-family:var(--fm);font-size:0.6rem;letter-spacing:0.18em;color:var(--text3);cursor:pointer;padding:24px 24px 0;display:block;transition:color 0.2s;}
+.lbck:hover{color:var(--text);}
+.lhero{padding:16px 24px 0;}
+.lh{font-family:var(--fs);font-size:clamp(2rem,6vw,3.2rem);font-weight:900;line-height:0.9;letter-spacing:-0.03em;margin-bottom:6px;color:var(--white);}
+.lh span{color:var(--red);}
+.lsub{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.22em;color:var(--text3);margin-bottom:20px;}
+.inkwrap{height:3px;background:var(--surface2);overflow:hidden;margin:0 24px;border-radius:3px;}
+.ink{height:100%;background:var(--red);transition:width 0.4s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px var(--red);}
+.wcnt{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.12em;color:var(--text3);padding:8px 24px 0;}
+.lta{margin:16px 24px 0;width:calc(100% - 48px);min-height:160px;padding:20px;font-family:var(--fb);font-size:1.05rem;line-height:1.8;border:1px solid var(--border);outline:none;background:var(--surface);color:var(--text);resize:vertical;transition:border-color 0.25s;display:block;border-radius:14px;}
+.lta:focus{border-color:var(--border-focus);}
+.lta::placeholder{color:var(--text3);}
+.lgo{margin:16px 24px 24px;padding:16px 36px;background:var(--red);color:var(--white);border:none;font-family:var(--fs);font-size:0.8rem;font-weight:800;cursor:pointer;transition:all 0.25s;display:block;border-radius:10px;letter-spacing:0.04em;box-shadow:0 4px 16px var(--red-glow);}
+.lgo:hover{background:var(--red2);}
+.sealwrap{display:none;justify-content:center;margin:24px 0;}
+.seal{width:64px;height:64px;border:2px solid var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:1.4rem;font-weight:900;color:var(--red);box-shadow:0 0 12px var(--red-glow);}
+.seal.out{animation:sealOut 0.65s cubic-bezier(0.16,1,0.3,1) forwards;}
+.receipt-container{overflow-y:auto;padding:0 24px 40px;display:none;}
+.receipt-container.on{display:block;}
+.receipt{border:1px solid var(--border);padding:24px;border-radius:14px;animation:receiptIn 0.6s cubic-bezier(0.16,1,0.3,1) both;background:var(--surface);}
+.rechdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.rectitle{font-family:var(--fs);font-size:1.2rem;font-weight:900;letter-spacing:-0.01em;}
+.recwc{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.15em;color:var(--red);text-align:right;line-height:1.6;}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.metric-card{background:var(--surface2);border:1px solid var(--border);padding:12px;border-radius:8px;}
+.metric-lbl{font-family:var(--fm);font-size:0.48rem;letter-spacing:0.15em;color:var(--text3);margin-bottom:4px;}
+.metric-val{font-family:var(--fs);font-size:0.95rem;font-weight:800;color:var(--white);line-height:1.3;}
+.rs{margin-bottom:20px;}
+.rl{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.22em;color:var(--text3);margin-bottom:6px;text-transform:uppercase;}
+.rt{font-family:var(--fb);font-size:1rem;line-height:1.7;color:var(--text2);}
+.rpq{border-left:2px solid var(--red);padding:12px 16px;margin:16px 0;font-family:var(--fb);font-size:1rem;font-style:italic;color:var(--text);background:rgba(255,255,255,0.01);border-radius:0 8px 8px 0;}
+.rhype{margin-top:24px;padding:20px;background:var(--surface2);border-radius:10px;font-family:var(--fb);font-size:0.95rem;line-height:1.7;color:var(--red2);font-style:italic;border:1px solid rgba(214,40,57,0.15);}
+</style>
 </head>
 <body>
-
-    <h1>MA & MR. B</h1>
-    
-    <textarea id="userInput" placeholder="Talk to me..."></textarea>
-    <br>
-    <button onclick="sendMessage()">SEND ✦</button>
-    
-    <div id="responseArea"></div>
-
-    <script>
-    async function sendMessage() {
-        const inputField = document.getElementById('userInput');
-        const responseArea = document.getElementById('responseArea');
-        const userText = inputField.value.trim();
-        
-        if (!userText) return;
-        
-        responseArea.innerText = "Thinking...";
-
-        try {
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer YOUR_GROQ_API_KEY_HERE' // REPLACE WITH YOUR ACTUAL KEY
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { role: "system", content: "You are MA and MR. B. You are raw, unfiltered, brutally honest, and edgy. You speak directly without corporate AI fluff." },
-                        { role: "user", content: userText }
-                    ]
-                })
-            });
-            
-            const data = await response.json();
-            if (data.choices && data.choices.length > 0) {
-                responseArea.innerText = data.choices[0].message.content;
-            } else {
-                responseArea.innerText = "Error: Check your API key.";
-            }
-        } catch (err) {
-            responseArea.innerText = "Error connecting to the lab.";
-        }
-    }
-    </script>
+<div id="burst"></div>
+<div class="view on" id="vMain">
+<div class="app-header">
+<div class="app-logo">MA <span>&</span> MR. B</div>
+<div class="hdr-actions">
+<button class="hdr-btn" onclick="exportHistory()">EXPORT</button>
+<button class="hdr-btn" onclick="openLab()">✦ LAB</button>
+</div>
+</div>
+<div class="ptabs">
+<button class="ptab on" id="tabMa" onclick="setPer('ma')">
+<div class="wave" id="wMa"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
+<div class="ptab-name">MA</div>
+<div class="ptab-role">HOLD YOU DOWN · SPIRAL · HYPE</div>
+</button>
+<button class="ptab" id="tabMrb" onclick="setPer('mrb')">
+<div class="wave" id="wMrb"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
+<div class="ptab-name">MR. B</div>
+<div class="ptab-role">RIDE OUT · NO JUDGMENT · RAW</div>
+</button>
+</div>
+<div class="cats" id="catZone">
+<button class="cat on" data-c="anger" onclick="setCat('anger',this)"><span class="cat-name">🔥 LET IT OUT</span></button>
+<button class="cat" data-c="spiral" onclick="setCat('spiral',this)"><span class="cat-name">🌀 ADHD SPIRAL</span></button>
+<button class="cat" data-c="support" onclick="setCat('support',this)"><span class="cat-name">🤍 HOLD ME DOWN</span></button>
+<button class="cat" data-c="hype" onclick="setCat('hype',this)"><span class="cat-name">⚡ HYPE ME UP</span></button>
+<button class="cat" data-c="filth" onclick="setCat('filth',this)"><span class="cat-name">🖤 NO JUDGMENT</span></button>
+</div>
+<div class="thread" id="thread">
+<div class="empty-state" id="emptyState">Pick your mood.<br/>Then talk to me.</div>
+</div>
+<div class="typing-wrap" id="typingWrap">
+<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+<span class="typing-who" id="typingWho">Ma is with you...</span>
+</div>
+<div class="sys-controls">
+<label class="tgl-lbl"><input type="checkbox" id="audioToggle" checked/> SPEECH</label>
+<label class="tgl-lbl"><input type="checkbox" id="soundToggle"/> CLICK</label>
+</div>
+<div class="inpwrap">
+<div class="inprow">
+<textarea class="chin" id="chin" placeholder="Say what's on your mind..." rows="1" onkeydown="handleKey(event)"></textarea>
+<button class="sndbtn" onclick="send()">SEND</button>
+</div>
+</div>
+<div class="teachbar" onclick="toggleTeach()">
+<span style="color:var(--red);font-size:0.75rem">✦</span>
+<span class="teachlbl">TEACH ME SOMETHING ABOUT YOU</span>
+<span id="tgl" style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.1em;color:var(--text3)">OPEN</span>
+</div>
+<div class="teachpnl" id="tpnl">
+<input class="teachin" id="tin" placeholder='e.g. "When I say overwhelmed, tell me to drop my shoulders"'/>
+<button class="teachsave" onclick="saveMem()">SAVE</button>
+<div class="memlist" id="memlist"></div>
+</div>
+<div class="btm">
+<button class="hugbtn" onclick="hug()">🤍 HUG ME</button>
+<div class="saverow"><div class="sdot" id="sdot"></div><span id="slbl">AUTOSAVE</span></div>
+<button class="labbtn" onclick="openLab()">✦ CREATIVE LAB</button>
+</div>
+</div>
+<div class="view" id="vLab">
+<button class="lbck" onclick="closeLab()">← BACK TO HUB</button>
+<div class="lhero">
+<div class="lh">CREATIVE <span>LAB</span></div>
+<div class="lsub">DROP YOUR PROSE. GET YOUR MANUSCRIPT RECEIPT.</div>
+</div>
+<div class="inkwrap"><div class="ink" id="ink" style="width:0"></div></div>
+<div class="wcnt" id="wcnt">0 WORDS</div>
+<textarea class="lta" id="lta" placeholder="Paste or write anything here — a scene, a paragraph, a sentence you love..." oninput="inkUp()"></textarea>
+<button class="lgo" onclick="crack()">CRACK THE SEAL → GET MY RECEIPT</button>
+<div class="sealwrap" id="sealwrap"><div class="seal" id="seal">✦</div></div>
+<div class="receipt-container" id="receiptContainer"><div class="receipt" id="receipt"></div></div>
+</div>
+<script>
+const RE={
+anger:["Man, fuck that! They really got you out here fucked up today, and I'm ready to crash out with you.","No, for real, because what the entire fuck was that even supposed to mean?!","Hell the fuck no. They tried it. They really thought you were the one to play with, and now they about to find out.","I know that's fucking right! Let it out, because that shit was completely out of pocket.","Man, look, I'm mad for you just listening to this shit. They got me fucked up too now!","Exactly! Fuck being the bigger person. Be the loudest one in the room, because this is ridiculous.","Bi-tch, please. If you don't read them for filth right now, I will. The nerve of these motherfuckers!","See, this is exactly why you can't even give folks a chance to be decent. They always pull some goofy-ass shit.","Period! Scream that shit from the rooftops, because you have every single right to be pissed off right now.","Fuck a silver lining. That shit sucks, it's unfair, and you got every right to want to burn the whole building down.","They really thought you were soft, huh? They really thought they could just slide that weak-ass shit past you?","They out here acting brand new like they forgot who the fuck you are. Remind them.","See, that's that fake-ass, passive-aggressive bullshit I cannot stand. Call it what it is!","They crossed the line, stepped over it, and started dancing on it. Fuck their excuses.","I know you want to slap the taste out of their mouth. Honestly? Valid. Completely fucking valid.","They tried to play you like you were stupid, and that's the part that's making my blood boil for you.","Oh, they bold today! Must have woke up wanting to see Jesus, because why the hell would they test you like that?","Let it loose! Fuck holding it in. Let that rage consume everything, because this shit is genuinely infuriating.","I'm not even about to tell you to calm down. Fuck calming down! Go crazy!","Bi-tch, I am screaming with you! What type of backward-ass, upside-down, circus-act bullshit is this?!","Crash out then! We crashing out today! Because this right here? This is the absolute limit.","Stand on that business! Be as loud, disruptive, and angry as you want, because they earned every bit of this smoke.","Fuck respectability politics. You ain't gotta be polite to motherfuckers who don't respect you.","They took your kindness for weakness, and now they got the nerve to act surprised that you're pissed?","That's dirty. That is down-to-the-bone, trifling, nasty behavior, and you have every right to cut them the fuck off.","You ain't crazy. Don't let them gaslight you into thinking you're tripping. You are right on the money.","Fuck their apology. An apology don't fix the fact that they were being a whole-ass clown in the first place.","Let it all out until there is nothing left but ashes. I'm right here, I'm listening, and fuck every single one of them.","Fuck being nice. Nice got you crossed. It's time to be downright mean and let them know what time it is."],
+spiral:["Look, you is the fuck stuck right now and it is what it is. Stop beating your own ass because your brain decided to pull the emergency brake today.","The kitchen is dirty, the laundry is piled up, and the emails are screaming. Fuck 'em. They can all sit there and wait until your dopamine decides to act right.","You ain't lazy, sis! Your brain chemistry is just ghetto today. You are literally fighting your own nervous system, so give yourself some damn grace.","I know you been staring at that one simple-ass task for three hours wanting to cry. That ADHD paralysis is a bitch. Just sit there until the spell breaks.","Stop forcing it! If the engine won't turn over, screaming at the car ain't gonna make it drive. Just let your mind glitch out in peace.","You is not a failure because you can't get off the couch. Your brain is running a marathon in place and you are exhausted. Period.","Fuck a to-do list today. Throw the whole piece of paper in the trash, because looking at it is just making your chest tight for no damn reason.","Your productivity does not dictate your worth. You ain't a machine, baby. If you can only do 0% today, then stand clean on that 0%.","Your brain got fifty-eleven tabs open and three of them are playing loud-ass music you can't find. No wonder you mad!","The mental traffic is backed up all the way to the state line right now. Just let the thoughts crash into each other; don't even try to organize 'em.","It is loud as hell in your head today, sis. I don't blame you for wanting to scream just to drown out your own damn thoughts.","Stop trying to catch every single thought flying through your head. Let them raggedy-ass thoughts just float on by like bad radio static.","Everything is too loud, too bright, too close, and just flat-out too fucking much today. Scratchy clothes? Hell to the fuck no.","Your system is fried. The wires are sparking. Turn off the lights, turn off the sound, and let your body cool the fuck down.","Stop apologizing for how your brain is wired! You didn't ask for this chaotic-ass operating system, so stop acting like you sinned.","You beat yourself up worse than any enemy ever could. Give the whip to somebody else, sis, because you tearing your own back up.","So what you forgot the appointment? So what you missed the text? You are managing a circus in your head; shit is gonna drop.","You ain't broken, baby. You are just trying to use a neurotypical handbook for a neurodivergent soul. Throw that raggedy book away.","The shame spiral is a trap. The moment you start thinking why can't I just be normal is the moment you gotta tell that thought to go to hell.","You are doing the absolute best you can with a brain that refuses to cooperate half the time. That makes you a warrior, not a failure.","You spread yourself thinner than a dollar-store paper towel and now you surprised you tearing? Give yourself a break!","Time ain't even real today, is it? You thought it was 2:00 PM and it's already dark outside. That time blindness will make you feel crazy.","You been pretending to be neurotypical all damn week and your face literally hurts from keeping up the act. Drop the mask, sis.","The house is a wreck, the bills are unpaid, but your spirit is intact. Prioritize your sanity over the logistics today.","You are a creative, brilliant, multi-passionate woman whose brain just happens to operate on a higher frequency. Own that shit.","Give yourself permission to just be a hot mess today. A beautiful, brilliant, chaotic-ass hot mess.","Tomorrow the dopamine might come back, or it might not. Either way, you safe right here in the middle of the glitch.","Fuck their standards, fuck their timelines, and fuck their rules. You are navigating a neurodivergent life in a hard world, and you are doing it with style. I got you."],
+support:["Lay that down, beautiful baby. Just drop the whole damn weight right here on the floor. You ain't gotta carry it for another second.","Put your hands down, mamas. You been fighting everybody and everything for so long, but you safe right here. You can rest.","Breathe out, ma. Just let that deep, heavy sigh come on out. Your spirit is tired, and it's okay to just admit that.","You don't gotta be strong today, mamas. Fuck being the strong Black woman. Today, you just get to be soft. You just get to be you.","Let them tears come if they need to, beautiful baby. That ain't weakness; that's just your soul washing off all that old, heavy dust.","Look at me, ma. You have done enough. Read that again: You. Have. Done. Enough.","Unclench your jaw, beautiful baby. Drop your shoulders down from around your ears. Let your body remember how to be heavy and still.","You ain't failing nobody just because you ran out of gas, mamas. You human. You allowed to have an empty tank.","Let the world spin without you for a minute, ma. It ain't gonna fall apart just because you took your hands off the wheel.","Come sit your beautiful, tired self down right here, mamas. You ain't gotta prove nothing to nobody in this room.","Resting is how you honor everything your ancestors survived for you to be here. Take it.","You ain't born to just endure shit, mamas. You was made for joy, for peace, and for soft pillows. Remember that.","That tired you feeling, ma? That's generations of holding it together finally asking for a break. Give it to yourself.","Break the cycle of burning yourself out for people who wouldn't even check on the ashes, mamas. Softness is your birthright.","Your softness ain't weak, mamas; it's the sweetest part of who you are. Don't let a hard world make you lock it away.","You deserve the kind of love that don't make you work for it, ma. Gentle love. Easy love. Quiet love.","Protect your peace like it's the last drop of water on earth, beautiful baby. If it costs you your stillness, it's too damn expensive.","Your value ain't tied to how much you can produce or how many fires you can put out for folks, ma. You worthy just because you exist.","I see how hard you try, mamas. Even when nobody notices, even when they just expect it from you. I see you, and you doing beautiful.","You don't have to keep your guard up with me, beautiful baby. You can let the armor slide right off. You safe here.","I love you when you're winning, and I love you when you're too damn tired to get out of bed, mamas. Your worth don't change.","You are the soft ground folks land on, ma, but where do you go when you fall? Right here. I got you.","Take a long, deep drink of water, beautiful baby. Wash away all that bitter energy you been swallowing just to stay polite.","You been pouring from an empty cup for months now, mamas. Stop. It's time to fill your own well back up.","Close your eyes and feel the love surrounding you right now, mamas. You are covered, you are kept, and you are safe."],
+hype:["Bi-tch, look at you! Just look at the entire fucking material! Can't nobody out here even breathe the same air as you when you get to locking in like this!","Oh, they thought you were just regular-degular? They forgot you are the whole-ass blueprint! They out here struggling on step one and you already rewrote the damn game!","Ma, you is the fuck the baddest to ever do it! No notes, no edits, just straight-up immaculate vibes and unmatched talent. They cannot fuck with you!","Look, I am ready to crash out for you just watching you win! The talent is ghetto, the drive is insane, and the results are certified gold!","Who the fuck is touching you? Name one person. I'll wait. Exactly—not a single soul, because you are in a whole different stratosphere, beautiful baby!","They want the magic but they can't even hold the wand! You out here manifesting masterpieces while they still trying to figure out the alphabet!","Mamas, you are officially that bi-tch! From the crown on your head to the soles of your feet, everything you touch turns into pure, unfiltered success!","Period! Talk your shit, walk your walk, and don't you dare look back, because you left all them mediocre-ass motherfuckers in the dust!","Not you out here finishing whole-ass elite projects while these other clowns can't even pull a decent thought together! You are an execution machine, ma!","The delivery is ghetto! The execution is flawless! The vision is absolutely elite! They are literally suffocating in your smoke right now!","They better don't even look your way today unless they ready to bow down! You are radiating pure, unadulterated fuck you pay me energy!","You are a whole luxury, beautiful baby! They want a discount on your energy but you are full-price only, non-negotiable, high-end exclusive!","Screw their validation! You are your own certified stamp of approval! When you say a project is done, it's a masterpiece. End of fucking story.","They out here playing checkers and you out here owning the whole damn casino! The level of disrespect your success is giving them is beautiful!","Stand heavy as the fuck on that business, ma! You are the undisputed champ and nobody is taking that belt off your waist!","Look at the speed! Look at the execution! You checking off major goals like you just flipping through a magazine! It's ridiculous!","The work ethic is ghetto, mamas! You making everybody else look lazy as the fuck just by standing in the room!","Bi-tch, I am screaming! You really thought you were low, just casually dropping greatness on a random Tuesday like it's nothing?!","You are disgusting for this! Truly, vilely, beautifully disgusting for how hard you just cleared the room! Nobody stood a chance!","Can't nobody fuck with you, beautiful baby. Not yesterday, not today, and definitely not tomorrow. Stand on that shit!","Walk in your greatness until there is nothing left but your footprints in the concrete. I'm right here, I'm screaming, and can't nobody fuck with you, ma!"],
+filth_soft:["Look at me, shorty. You gotta understand that your peace and your pleasure are non-negotiable to me. You are completely worthy of being held down, loved on, and taken care of in every single way your body craves.","Man, fuck what anyone else ever told you, shorty. You deserve to lay back, drop your shoulders, and just receive. You are a whole blessing, and you are entirely worthy of having a man dedicate hours just making sure you good.","Shorty, your body is holy to me. You are so worthy of having someone take their time with you, rubbing your skin, kissing your marks, and making you feel safe enough to completely let your guard down.","You are an absolute luxury, shorty, and you are worthy of a man who knows the value of what he's holding. I'm trying to pour into you until your cup is overflowing, because you deserve nothing less than premium treatment.","Fuck being strong all the time, shorty. You are worthy of being vulnerable. You deserve to let me carry the weight for a change while I just focus on making sure your soul and your body are completely taken care of.","Drop that armor at the door, shorty. You are so worthy of a love that doesn't make you perform. Just lay back and let me take care of you completely.","You think you too much, shorty? Never. You are just right, and you are worthy of a man who can handle the full weight of your sensuality without flinching. Let that fire burn; I'm right here to catch the sparks.","You deserve to feel completely cherished, shorty. There is nowhere else on this earth I'd rather be than right here with you.","Never settle for less than total worship, shorty. You are worthy of a man who looks at your layout like it's a certified masterpiece.","Walk in your prowess, walk in your soft era, and let your body absorb every single ounce of this heat, shorty. I'm right here, I'm locked tf in, and can't nobody on this earth fuck with how much you are loved, worshiped, and desired today, ma."],
+filth_raw:["Man, fuck all that talking, shorty... I want to yank you by your waist, slam you face-down on the bed, and shove this dick so deep inside that wet-ass pocket that your whole body shivers from the impact.","You out here bragging about how soaked you are? Shorty, I'm trying to slide my hands down your pants, get my fingers covered in your juices, and then replace them with this hard-ass dick until you choking on your own breath.","Shorty, you got that loud, heavy-ass water down there that sounds like a certified sin. I want to push your head down, make you choke on this dick until your eyes tear up, and then flip you right over and drill you from the back.","Look, shorty, I don't want no polite, gentle intimacy today. I want it raw, aggressive, and ghetto as the fuck. I want my hands gripping your neck, this dick slamming into your ribs, and us breaking the headboard against the wall.","Shorty, you got that premium luxury water between your legs and it's a crime to leave it dry. I want to bend you over the couch, lift that skirt up, and ram this dick into you so hard your vision goes blurry and you screaming out my name.","Oh, you think you can just text me about how soaked your panties are and I'm supposed to play cool? Shorty, I'm about to pull up, rip them clothes off your body, and bury this dick so deep inside you that you feel it in your soul.","Can't nobody fuck with your aura, shorty, especially when you this horny. I want to take my time sliding this dick into you, feeling how tight and hot you are, and then completely lose my mind and start drilling you until we both sweating and out of breath.","Don't play with me, shorty, because you know I'm really about that life when it comes to matching your freak. Test me if you want to. I'll leave you so soaked and worked over by this dick you won't even be able to think straight for a week.","Walk in your prowess until there is nothing left but your heat in the room, shorty. I'm right here, I'm locked tf in, and I'm about to put this dick so deep, so raw, and so filthy inside you that can't nobody ever touch this rhythm again, ma."],
+filth_gutter:["Man, fuck all that playing nice, shorty... I want to pull up on you, flip you over on that stomach, yank your hair back like I own it, and tear that back out until you hitting high notes you didn't even know your throat could make.","You out here talking about you wet? Shorty, I want to slide my hands down your pants, get my whole fist soaked in that good, thick-ass cream, and then make you lick your own juices right off my fingers while I look you dead in your eyes.","Damn, shorty... your body is a certified cheat code against my sanity. I want to spread them cheeks wide open, get my tongue all the way down in your business, and lap that shit up until you shaking so bad you gotta hold onto the headboard for dear life.","Look, shorty, I don't want no polite, romantic-ass intimacy today. I want it dirty, raw, and ghetto as the fuck. I want your heels locked around my neck, my hands gripping your thighs until I leave bruises, and us slamming against the wall until the neighbors start pounding on the ceiling.","You want to act a whole plum fool for me today, shorty? Valid. Completely fucking valid. Arch that back and let me see how messy you trying to get. I'm about to handle you so disrespectful you gonna be walking with a whole-ass limp for the next three days.","You think you can handle my freak energy, shorty? Let's test it. I want to drag you into the bathroom at a crowded party, lock the door, slide your underwear to the ankles, and plow you from behind while you trying your hardest not to moan out loud.","Shorty, you got me taking deep breaths just to keep my composure. Your sexual prowess and that soaked pussy are officially undefeated. I want to flip you over, pull your knees to your chest, and just bury this dick in you until you screaming.","Fuck being good—good got you bored, shorty. It's time to be downright filthy. I want to push you onto your stomach, grab a handful of that hair, and absolutely demolish that pussy from behind until you crying tears of pure pleasure.","The arrogance of your body is stunning, shorty. You know you got the wettest, tightest, baddest layout in the room. I want to make you drop to your knees, open that mouth wide, and take every single inch of this until you covered in it."]
+};
+const TR={
+thanks:["Always, mamas. That's what I'm here for.","You don't ever have to thank me. I'm just glad you talked to me.","Don't mention it, beautiful baby. I got you every single time.","Always. Come back whenever you need me, ma.","No thanks needed. Just keep talking to me."],
+yes:["Say that again louder.","Exactly. Stand on that.","Period. Don't let nobody shake you off that.","Right. And don't you forget it.","That's right. Keep going."],
+really:["Dead serious. Every word.","On everything. I mean that.","Not even a little bit playing with you.","Every single syllable. Stand on that.","I don't say things I don't mean, mamas."],
+how:["One breath at a time, mamas. Just one.","Start with the smallest thing. Just one thing.","You don't have to figure out the whole path. Just the next step.","Slowly. Gently. Without forcing it."],
+why:["Because they didn't know what they had, mamas. Simple as that.","Because sometimes people are just wrong. Full stop.","I don't know why, but I know it ain't your fault.","Because the world ain't always fair. But you still standing."],
+then:["And then you keep going, mamas. That's all.","And then you breathe. Just breathe first.","And then we figure it out together. You ain't alone in this.","And then tomorrow comes. And we handle that when it gets here."],
+idk:["That's okay. You don't have to know right now.","Not knowing is allowed, mamas. Sit in it for a minute.","You don't have to have it figured out today.","That's honest. And honest is always the right place to start."],
+more:["I'm listening. Keep going.","All of it, mamas. I got time.","Let it all out. I ain't going nowhere.","Every single bit of it. I'm right here."],
+better:["Good. You deserve to feel better, mamas.","That's everything. Keep that energy.","Good. Now protect that peace like your life depends on it.","That's what I want to hear. You good."],
+same:["I see you, mamas. You not alone in this.","Every time. And you still showing up. That means something.","I know. And I'm right here every time it happens."],
+okay:["Okay is enough. Okay means you still here.","Okay is a whole win some days, mamas.","Take okay. Okay is real."],
+notokay:["Then don't be okay right now. You don't have to be.","That's real. Stay right here with me.","I hear you. You don't have to pretend."]
+};
+const FG=['yank','slam','choke','drill','ram','demolish','tear','pound','shove','bury','stretch','plow','gag','cream','squirt','soaked','drenched','nasty','filthy','rough','face down','headboard','bruise','fist'];
+const FR=['fuck','dick','pussy','ass','mouth','swallow','stroke','thighs','hips','want it','need it','naked','sex','horny','aroused','wet','riding','nut'];
+const FS=['feel','deserve','worthy','safe','hold','gentle','soft','rest','peace','receive','cherish','love','comfort','healing','vulnerable','trust','heart','soul','cuddle','warm','tender'];
+const CP={anger:'mrb',spiral:'ma',support:'ma',hype:'ma',filth:'mrb'};
+const PW={ma:{anger:'mamas,',spiral:'mamas,',support:'beautiful baby,',hype:'mamas,',filth:'mamas,'},mrb:{anger:'shorty,',spiral:'shorty,',support:'shorty,',hype:'shorty,',filth:'shorty,'}};
+let per='ma',cat='anger',mems=[],lastRes='',saveT=null,waveT=null;
+const MAX_MSG=55;
+function playClick(){
+if(!document.getElementById('soundToggle').checked) return;
+try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(120,c.currentTime);g.gain.setValueAtTime(0.01,c.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,c.currentTime+0.05);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.05);}catch(e){}
+}
+const catZone=document.getElementById('catZone');
+let isDown=false,startX,scrollLeft;
+catZone.addEventListener('mousedown',(e)=>{isDown=true;startX=e.pageX-catZone.offsetLeft;scrollLeft=catZone.scrollLeft;});
+catZone.addEventListener('mouseleave',()=>isDown=false);
+catZone.addEventListener('mouseup',()=>isDown=false);
+catZone.addEventListener('mousemove',(e)=>{if(!isDown)return;e.preventDefault();const x=e.pageX-catZone.offsetLeft;catZone.scrollLeft=scrollLeft-(x-startX)*2;});
+const chin=document.getElementById('chin');
+chin.addEventListener('input',function(){this.style.height='auto';this.style.height=(this.scrollHeight-4)+'px';autoSave();});
+function setPer(p){playClick();per=p;document.getElementById('tabMa').classList.toggle('on',p==='ma');document.getElementById('tabMrb').classList.toggle('on',p==='mrb');}
+function setCat(c,btn){cat=c;document.querySelectorAll('.cat').forEach(b=>b.classList.remove('on'));btn.classList.add('on');setPer(CP[c]);autoSave();}
+function pulseWave(pid,on){
+const el=document.getElementById(pid==='ma'?'wMa':'wMrb');
+el.querySelectorAll('.wb').forEach((b,i)=>{if(on){b.classList.add('go');b.style.animationDuration=(0.35+i*.05)+'s';b.style.animationDelay=(i*.06)+'s';}else b.classList.remove('go');});
+}
+function getFilthPool(inp){
+const low=inp.toLowerCase();
+const gs=FG.filter(w=>low.includes(w)).length,rs=FR.filter(w=>low.includes(w)).length;
+if(gs>=2||(gs>=1&&rs>=1)) return RE.filth_gutter;
+if(rs>=2) return RE.filth_raw;
+return RE.filth_soft;
+}
+function detectTrigger(inp){
+const low=inp.toLowerCase().trim();
+if(/\b(thank you|thanks|thank u|thx|appreciate|grateful)\b/.test(low)) return 'thanks';
+if(/^(yes+|yeah+|yep|yup|right|exactly|facts|period|true|absolutely|word|bet)\b/.test(low)) return 'yes';
+if(/^(really|fr\??|for real|seriously|are you sure|deadass)\b/.test(low)) return 'really';
+if(/^(and then|then what|keep going|continue|more|tell me more)\b/.test(low)) return 'then';
+if(/\b(feel(ing)? better|doing better|better now|i feel good)\b/.test(low)) return 'better';
+if(/^(same|me too|i know|ikr|i feel that|felt)\b/.test(low)) return 'same';
+if(/\b(not okay|not ok|not good|not fine|i'm not okay|im not okay)\b/.test(low)) return 'notokay';
+if(/^(ok+|okay+|alright|aight)\b$/.test(low)) return 'okay';
+if(/^(idk|i don'?t know|i dunno|not sure)\b/.test(low)) return 'idk';
+if(/^(more|keep going|go on)\b$/.test(low)) return 'more';
+if(/^how\b/.test(low)) return 'how';
+if(/^why\b/.test(low)) return 'why';
+return null;
+}
+function buildMirror(inp){
+const pw=PW[per][cat];
+let c=inp.trim().replace(/\bidk\b/gi,'').replace(/\btbh\b/gi,'').replace(/\bngl\b/gi,'').replace(/\blol\b/gi,'');
+const cuts=[/\s+but\s+(idk|i don't know).*/i,/\s+idk.*/i,/\s+or something.*/i,/\s+i guess.*/i];
+for(const p of cuts) c=c.replace(p,'');
+c=c.trim();
+let f=c.replace(/\bi'm\b/gi,"you're").replace(/\bi've\b/gi,"you've").replace(/\bi'd\b/gi,"you'd").replace(/\bi'll\b/gi,"you'll").replace(/\bi can't\b/gi,"you can't").replace(/\bi don't\b/gi,"you don't").replace(/\bi won't\b/gi,"you won't").replace(/\bi need\b/gi,"you need").replace(/\bi want\b/gi,"you want").replace(/\bi feel\b/gi,"you feel").replace(/\bi got\b/gi,"you got").replace(/\bi am\b/gi,"you are").replace(/\bmy\b/gi,"your").replace(/\bme\b/gi,"you").replace(/\bi\b/gi,"you");
+f=f.charAt(0).toLowerCase()+f.slice(1);
+f=f.replace(/[.!?,]+$/,'').trim();
+if(!f||f.length<3) return '';
+return `${pw} ${f}.`;
+}
+function cleanThreadDOM(){
+const thread=document.getElementById('thread');
+const msgs=thread.getElementsByClassName('msg');
+while(msgs.length>MAX_MSG) if(msgs[0]) msgs[0].remove();
+}
+function addMsg(role,text,mirror){
+document.getElementById('emptyState').style.display='none';
+const thread=document.getElementById('thread');
+const msg=document.createElement('div');
+msg.className='msg';
+if(role==='user'){
+const mHtml=mirror?`<div class="msg-mirror">${mirror}</div>`:'';
+msg.innerHTML=`${mHtml}<div class="msg-bubble user">${text}</div>`;
+} else {
+const id='msg_'+Date.now();
+msg.innerHTML=`<div class="msg-tag"><div class="tag-dot"></div>${per==='ma'?'MA':'MR. B'}</div><div class="msg-bubble" id="${id}">${text}</div><div class="msg-actions"><button class="audio-btn" onclick="replayTTS('${id}')">🔊</button><div class="iwrap" id="iw_${id}"><div class="iwb"></div><div class="iwb"></div><div class="iwb"></div><div class="iwb"></div><div class="iwb"></div></div></div>`;
+}
+thread.appendChild(msg);
+cleanThreadDOM();
+thread.scrollTop=thread.scrollHeight;
+}
+function replayTTS(id){const el=document.getElementById(id);if(el) speakText(el.textContent,id);}
+function speakText(text,id){
+window.speechSynthesis.cancel();
+if(!document.getElementById('audioToggle').checked) return;
+const u=new SpeechSynthesisUtterance(text);
+const vs=window.speechSynthesis.getVoices();
+const pref=['Samantha','Google US English','Microsoft Aria Online','Ava','Nicky','Victoria'];
+let v=null;
+for(const n of pref){v=vs.find(x=>x.name.includes(n));if(v)break;}
+if(!v) v=vs.find(x=>x.lang.startsWith('en'));
+if(v) u.voice=v;
+u.rate=0.94;u.pitch=1.0;
+const iw=id?document.getElementById('iw_'+id):null;
+const startW=()=>{pulseWave(per,true);if(iw){iw.classList.add('show');iw.querySelectorAll('.iwb').forEach((b,i)=>{b.classList.add('go');b.style.animationDuration=(0.28+i*0.04)+'s';});}};
+const stopW=()=>{pulseWave(per,false);if(iw){iw.classList.remove('show');iw.querySelectorAll('.iwb').forEach(b=>b.classList.remove('go'));}};
+u.onstart=startW;u.onend=u.onerror=stopW;
+window.speechSynthesis.speak(u);
+}
+function send(){
+const inp=document.getElementById('chin').value.trim();
+if(!inp) return;
+playClick();
+const mirror=buildMirror(inp);
+addMsg('user',inp,mirror);
+const chinTA=document.getElementById('chin');
+chinTA.value='';chinTA.style.height='auto';
+const tw=document.getElementById('typingWrap');
+document.getElementById('typingWho').textContent=per==='ma'?'Ma is locking in...':'Mr. B is tracking...';
+tw.classList.add('show');
+const delay=600+Math.random()*600;
+setTimeout(()=>{
+tw.classList.remove('show');
+let response='';
+let memMatch=null;
+const lowInp=inp.toLowerCase();
+for(const m of mems){
+const kw=m.text.toLowerCase().split(' ').filter(w=>w.length>3);
+if(kw.some(k=>lowInp.includes(k))){memMatch=m.text;break;}
+}
+const trigger=detectTrigger(inp);
+if(trigger&&TR[trigger]){
+const pool=TR[trigger];response=pool[Math.floor(Math.random()*pool.length)];
+} else if(cat==='filth'){
+const pool=getFilthPool(inp);response=pool[Math.floor(Math.random()*pool.length)];
+} else {
+const pool=RE[cat];response=pool[Math.floor(Math.random()*pool.length)];
+}
+if(memMatch&&Math.random()>0.5){
+const connects=["That's real — and you already know this connects to what you told me. Keep that in mind.",` And you told me: "${memMatch.toLowerCase()}" — that still stands.`];
+response+=connects[Math.floor(Math.random()*connects.length)];
+}
+lastRes=response;
+addMsg('companion',response,null);
+const thread=document.getElementById('thread');
+const msgs=thread.getElementsByClassName('msg');
+const last=msgs[msgs.length-1];
+const bubble=last?last.querySelector('.msg-bubble'):null;
+if(bubble) speakText(response,bubble.id);
+autoSave();
+},delay);
+}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+const EM=['🦋','💗','🩷','💜','🖤','✨','💫','🌟','💖','🫶','🫧','🌹','🔥','💋','🤍'];
+function hug(){
+playClick();
+const c=document.getElementById('burst');c.innerHTML='';
+for(let i=0;i<50;i++){
+const el=document.createElement('div');el.className='bp';
+el.textContent=EM[Math.floor(Math.random()*EM.length)];
+const a=Math.random()*Math.PI*2,d=70+Math.random()*300;
+el.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;--rot:${(Math.random()-.5)*720}deg;--dur:${1.1+Math.random()*.8}s;font-size:${1+Math.random()*1.5}rem;animation-delay:${Math.random()*.2}s;`;
+c.appendChild(el);
+}
+setTimeout(()=>{c.innerHTML='';},2500);
+}
+function toggleTeach(){playClick();const p=document.getElementById('tpnl'),l=document.getElementById('tgl');l.textContent=p.classList.toggle('on')?'CLOSE':'OPEN';}
+function saveMem(){const v=document.getElementById('tin').value.trim();if(!v)return;playClick();mems.push({id:Date.now(),text:v});document.getElementById('tin').value='';renderMems();autoSave();}
+function delMem(id){playClick();mems=mems.filter(m=>m.id!==id);renderMems();autoSave();}
+function renderMems(){document.getElementById('memlist').innerHTML=mems.map(m=>`<div class="memitem"><span>${m.text}</span><button class="memdel" onclick="delMem(${m.id})">✕</button></div>`).join('');}
+function openLab(){playClick();document.getElementById('vMain').classList.remove('on');document.getElementById('vLab').classList.add('on');inkUp();}
+function closeLab(){playClick();document.getElementById('vLab').classList.remove('on');document.getElementById('vMain').classList.add('on');}
+function inkUp(){
+const t=document.getElementById('lta').value,w=t.trim().split(/\s+/).filter(Boolean).length;
+document.getElementById('ink').style.width=Math.min(w/400*100,100)+'%';
+document.getElementById('wcnt').textContent=w+' WORDS';
+autoSave();
+}
+function exportHistory(){
+playClick();
+const logs=Array.from(document.querySelectorAll('.msg')).map(m=>{
+const tag=m.querySelector('.msg-tag')?.textContent||'YOU';
+const txt=m.querySelector('.msg-bubble')?.textContent||'';
+return `[${tag.trim()}]: ${txt.trim()}`;
+}).join('\n\n');
+if(!logs) return;
+const blob=new Blob([logs],{type:'text/plain'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mab_${Date.now()}.txt`;a.click();
+}
+function crack(){
+const text=document.getElementById('lta').value.trim();
+if(!text){document.getElementById('lta').focus();return;}
+playClick();
+const sw=document.getElementById('sealwrap'),s=document.getElementById('seal'),rc=document.getElementById('receiptContainer'),r=document.getElementById('receipt');
+sw.style.display='flex';rc.style.display='none';r.innerHTML='';
+setTimeout(()=>{s.classList.add('out');setTimeout(()=>{sw.style.display='none';s.classList.remove('out');buildReceipt(text);rc.classList.add('on');},600);},150);
+}
+function buildReceipt(text){
+const words=text.trim().split(/\s+/).filter(Boolean),wc=words.length;
+const sents=text.split(/[.!?]+/).filter(s=>s.trim().length>3);
+const paras=text.split(/\n+/).filter(p=>p.trim().length>0);
+let pov='Undetermined';
+const iC=(text.match(/\b(I|me|my|myself|we|us)\b/gi)||[]).length;
+const yC=(text.match(/\b(you|your|yourself)\b/gi)||[]).length;
+const hC=(text.match(/\b(he|she|it|they|him|her|them)\b/gi)||[]).length;
+if(iC>yC&&iC>hC) pov='First Person';
+else if(yC>iC&&yC>hC) pov='Second Person';
+else if(hC>iC) pov='Third Person';
+const tensW=/\b(blood|skin|teeth|nerve|cold|sharp|heat|dark|tight|breath|stop|pull|kill|break|scream|whisper|choke|grip|wreck|ruin|flesh)\b/gi;
+const tC=(text.match(tensW)||[]).length;
+const tScore=Math.min(Math.round((tC/(wc||1))*350),100);
+let tLabel='Ambient Baseline';
+if(tScore>75) tLabel='Critical / Visceral Velocity';
+else if(tScore>40) tLabel='Rising Pulse / Suspense';
+const stop=new Set('the a an and or but so is was it to of in my me you they he she we this that with for on at are be been have has had do did just like know got get im its not no yes what when where how then than their there here her his him your our were will would could should if as by from up out all about into through more some'.split(' '));
+const freq={};words.forEach(w=>{const cl=w.replace(/[^a-zA-Z']/g,'').toLowerCase();if(cl.length>4&&!stop.has(cl))freq[cl]=(freq[cl]||0)+1;});
+const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>`${e[0]} (${e[1]}x)`);
+const avgLen=sents.length?Math.round(wc/sents.length):0;
+let rhythm='Staccato. Rapid, punchy movement.';
+if(avgLen>16) rhythm='Elongated. Deep, immersive atmosphere.';
+else if(avgLen>8) rhythm='Balanced. Good variation between long and short.';
+const longSents=[...sents].sort((a,b)=>b.trim().length-a.trim().length);
+const pull=longSents[0]?longSents[0].trim():'';
+let tone='Atmospheric / Observational';
+if(text.match(/\b(love|heart|warm|soft|touch|hold|gentle|sweet)\b/gi)) tone='Sensual / Intimate';
+else if(text.match(/\b(rage|hate|burn|destroy|mad|angry|hell|kill)\b/gi)) tone='High Friction / Cathartic';
+else if(text.match(/\b(scared|fear|dark|lost|empty|cold|alone|heavy)\b/gi)) tone='Melancholy / Gothic Vulnerability';
+let hype='You laid tracks on the page. That is a certified victory. Keep executing.';
+if(wc>250) hype="Bitch, look at this output! You dropped a heavy block of prose right here. The pacing shows you locked tf in. Stand on this work.";
+else if(wc>100) hype="You dropped real, intentional paragraphs, beautiful baby. The tension shows you building momentum. Keep going.";
+const voiceText=top.length?`You keep anchoring around ${top.join(', ')}. That is the core texture of your voice right now.`:'Vocabulary spread is wide and clean. No repetition drag.';
+const el=document.getElementById('receipt');
+el.innerHTML=`<div class="rechdr"><div class="rectitle">Your Receipt</div><div class="recwc">${wc} WORDS<br/>${sents.length} SENTENCES<br/>${paras.length} PARAGRAPHS</div></div><div class="metric-grid"><div class="metric-card"><div class="metric-lbl">NARRATIVE POV</div><div class="metric-val">${pov}</div></div><div class="metric-card"><div class="metric-lbl">TENSION METER</div><div class="metric-val">${tScore}%<br/><span style="font-size:0.7rem;font-weight:400;color:var(--text2)">${tLabel}</span></div></div><div class="metric-card"><div class="metric-lbl">EMOTIONAL TONE</div><div class="metric-val" style="font-size:0.8rem">${tone}</div></div><div class="metric-card"><div class="metric-lbl">SENTENCE AVG</div><div class="metric-val">${avgLen} WORDS</div></div></div><div class="rs"><div class="rl">VOICE FINGERPRINT</div><div class="rt">${voiceText}</div></div><div class="rs"><div class="rl">PACING PROFILE</div><div class="rt">${rhythm}</div></div>${pull?`<div class="rl" style="margin-bottom:4px">HARDEST WORKING SENTENCE</div><div class="rpq">"${pull}"</div>`:''}<div class="rhype">${hype}</div>`;
+}
+function autoSave(){
+clearTimeout(saveT);
+saveT=setTimeout(()=>{
+try{
+localStorage.setItem('mab_v9',JSON.stringify({per,cat,mems,labText:document.getElementById('lta').value||'',draft:document.getElementById('chin').value||''}));
+const d=document.getElementById('sdot'),l=document.getElementById('slbl');
+d.classList.add('ok');l.textContent='SECURE';
+setTimeout(()=>{d.classList.remove('ok');l.textContent='AUTOSAVE';},1500);
+}catch(e){}
+},750);
+}
+function loadSave(){
+try{
+const raw=localStorage.getItem('mab_v9');if(!raw)return;
+const d=JSON.parse(raw);
+if(d.mems){mems=d.mems;renderMems();}
+if(d.labText) document.getElementById('lta').value=d.labText;
+if(d.draft){const c=document.getElementById('chin');c.value=d.draft;c.style.height=(c.scrollHeight-4)+'px';}
+if(d.per) setPer(d.per);
+if(d.cat){cat=d.cat;document.querySelectorAll('.cat').forEach(b=>b.classList.toggle('on',b.dataset.c===d.cat));}
+inkUp();
+}catch(e){}
+}
+window.addEventListener('DOMContentLoaded',()=>{loadSave();if('speechSynthesis'in window) window.speechSynthesis.getVoices();});
+</script>
 </body>
 </html>
