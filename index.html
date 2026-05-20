@@ -177,9 +177,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <span class="typing-who" id="typingWho">Ma is with you...</span>
 </div>
 <div class="sys-controls">
-<label class="tgl-lbl"><input type="checkbox" id="audioToggle" checked/> SPEECH</label>
-<label class="tgl-lbl"><input type="checkbox" id="soundToggle"/> CLICK</label>
-</div>
+    <input type="password" id="groqKey" placeholder="Enter Groq API Key" 
+           style="width: 100%; padding: 8px; margin-bottom: 10px; background: #111; border: 1px solid #222; color: #fff; border-radius: 8px;"
+           oninput="localStorage.setItem('mab_groq_key', this.value)">
+    
+    </div>
 <div class="inpwrap">
 <div class="inprow">
 <textarea class="chin" id="chin" placeholder="Say what's on your mind..." rows="1" onkeydown="handleKey(event)"></textarea>
