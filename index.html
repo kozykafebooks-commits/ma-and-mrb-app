@@ -407,7 +407,7 @@ async function send() {
     const inp = document.getElementById('chin').value.trim();
     if (!inp) return;
 
-    // 1. UI Feedback: Mirror the input
+    // 1. UI: Mirror input and clear box
     playClick(); 
     const mirror = buildMirror(inp);
     addMsg('user', inp, mirror);
@@ -417,10 +417,10 @@ async function send() {
     let finalResponse = '';
 
     if (inp.startsWith('!')) {
-        // Trigger the AI Helper (must be async)
+        // Trigger the AI Helper
         finalResponse = await getGroqResponse(inp.substring(1));
     } else {
-        // Trigger the Original Helper (standard function)
+        // Trigger the Original Helper
         finalResponse = getOriginalResponse(inp);
     }
 
